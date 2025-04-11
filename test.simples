@@ -1,0 +1,12 @@
+/* Exemplo de um programa escrito em SIMPLES */
+
+programa
+inicio
+   inteiro a;
+   inteiro b;
+   inteiro c;
+   flutuante d <- a + b;
+   flutuante d <- b + e;
+   b <- a + b;
+fim
+

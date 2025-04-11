@@ -1,0 +1,147 @@
+/* ----------------------Preliminary Declarations Section--------------------*/
+   
+/* Import the class java_cup.runtime.*  */
+import java_cup.runtime.*;
+import java.util.*;
+   
+parser code {:
+      
+    
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+   
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            if (s.left >= 0) {                
+                m.append(" in line "+(s.left+1));   
+                if (s.right >= 0)                    
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        m.append(" : "+message);
+   
+        System.err.println(m);
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+    public void emit_main(){
+         System.out.print("#include <stdio.h>"); 
+         System.out.print("\n#include <stdlib.h>");
+         System.out.print("\nint main()");
+    }
+    public void emit_startprogram(){
+         System.out.print("{");            
+    }
+    public void emit_endprogram(){
+        System.out.print("\n}");
+    }
+    public void emit_return(){
+        System.out.print("\nreturn 0;");
+    }
+
+    public void emit_declaracao_variavel(String t, String id){
+        if(t.equals("INT")) {
+            System.out.print("\nint " + id);
+        } else {
+            System.out.print("\nfloat " + id);}  
+    }
+    public void emit_expr(String value){
+        System.out.print(value);
+    }
+    public void emit_atrib(){
+        System.out.print("="); 
+    }
+    public void emit_semi(){
+        System.out.print(";");
+    }
+    public void emit_id(String id){
+        System.out.print("\n"+id); 
+    }
+:};
+   
+
+   
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+/* Terminals (tokens returned by the scanner). */
+terminal            PLUS, MINUS, TIMES, DIVIDE,  LPAREN, RPAREN, LBRCKT, RBRCKT, EQUALS, GREATER,LESS, PROGRAM, STARTPRG, ENDPRG, READLINE, WRITELINE,DECLINT,DECLFLOAT, E, OU, NAO;
+terminal            IFF, SEMI, THENN,  ELSEE, ENDELSE, ATTRIB, PARA, DE, ATE, PASSO, FACA, FIMPARA, ENQUANTO, FIMENQUANTO;
+terminal String	  ID;
+terminal String     INTT;      
+terminal String     FLOATT;
+
+/* Non terminals */
+non terminal             program, list_command, command, assign , declare_variable;
+non terminal  String    expr,tipo,vetor;      
+
+/* Precedences */
+precedence left GREATER, LESS;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence left LPAREN, RPAREN;
+precedence left LBRCKT, RBRCKT; 
+precedence left E, OU, NAO;
+precedence left EQUALS;
+
+
+/* The grammar rules */
+program ::= PROGRAM        {:emit_main();:} 
+            STARTPRG       {:emit_startprogram();:} 
+            list_command   
+            ENDPRG         {:emit_return(); emit_endprogram(); :}
+            ;
+
+list_command ::= list_command command 
+            |  /* empty */
+            ;
+
+command ::=    declare_variable 
+            |  assign            
+     
+            ;
+          
+
+tipo ::=      DECLINT:t   {: RESULT = "INT"  ;     :}
+            | DECLFLOAT:t {: RESULT = "FLOAT";     :}
+            ;
+   
+
+declare_variable ::=  tipo:t  ID:id {:emit_declaracao_variavel(t,id);:}
+                      ATTRIB {:emit_atrib();:}
+                      expr:value   {:emit_expr(value);:}
+                      SEMI         {: emit_semi();:}
+                    
+                     | tipo:t ID:id {:emit_declaracao_variavel(t,id);  :} 
+                      SEMI         {: emit_semi();:}
+                     ;
+
+
+assign		::=   ID:id             {: emit_id(id); :}
+                  ATTRIB            {: emit_atrib(); :}
+                  expr:value        {: emit_expr(value);:} 
+                  SEMI              {:emit_semi();:}
+                 ;
+
+
+expr     ::= expr:e1 PLUS expr:e2         {: RESULT =  e1 + "+" + e2;:}
+	        | expr:e1 MINUS expr:e2        {: RESULT =  e1 + "-" + e2;:}
+           | expr:e1 TIMES expr:e2        {: RESULT =  e1 + "*" + e2;:}  
+	        | expr:e1 DIVIDE expr:e2       {: RESULT =  e1 + "/" + e2;:}  
+           | expr:e1 EQUALS expr:e2       {: RESULT =  e1 + "==" + e2;:}
+           | expr:e1 GREATER expr:e2      {: RESULT =  e1 + ">" + e2;:}
+           | expr:e1 LESS expr:e2         {: RESULT =  e1 + "<" + e2;:}
+           | expr:e1 E expr:e2            {: RESULT =  e1 + "&&" + e2;:}
+           | expr:e1 OU expr:e2           {: RESULT =  e1 + "||" + e2;:}
+           | NAO expr:e1                 {: RESULT =   "!" + e1;:}
+           | LPAREN  
+             expr:e1                      {: RESULT =  "(" + e1  + ")";:} 
+             RPAREN   
+           | ID:i                         {: RESULT = i; :}
+           | INTT: n                      {: RESULT = n; :}
+           | FLOATT:n                     {: RESULT = n; :}
+           ;
