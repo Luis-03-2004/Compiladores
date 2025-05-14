@@ -77,7 +77,7 @@ comment =  {commentinicio}{commentbody}{commentfim} | \/\/[a-zA-Z0-9 \t]*
     "fimpara"          {  return symbol(sym.FIMPARA);  }
     "enquanto"         {  return symbol(sym.ENQUANTO); }
     "fimenquanto"      {  return symbol(sym.FIMENQUANTO);}
-    "&"                {  return symbol(sym.E);        }
+    "e"                {  return symbol(sym.E);        }
     "ou"               {  return symbol(sym.OU);       }
  
     {integer}      { return symbol(sym.INTT,yytext()); }

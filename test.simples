@@ -3,10 +3,24 @@
 programa
 inicio
    inteiro a;
-   inteiro b;
+   inteiro b <- 5;
    inteiro c;
-   flutuante d <- a + b;
-   flutuante d <- b + e;
-   b <- a + b;
+   inteiro f;
+   flutuante d;
+
+   leia a;
+   leia c;
+   leia f;
+   leia d;
+
+   b <- (a + b) * c div c;
+   f <- 5 + 2;
+   c <- c + f * 5;
+
+   escreva b;
+   escreva f;
+   escreva c;
+   escreva d;
+
 fim
 
